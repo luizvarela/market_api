@@ -36,4 +36,5 @@ defmodule MarketApi.Endpoint do
     signing_salt: "EHlQ+rw4"
 
   plug MarketApi.Router
+  plug Corsica, origins: "*"
 end
