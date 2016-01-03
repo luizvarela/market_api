@@ -2,16 +2,22 @@ defmodule MarketApi.ProductController do
   use MarketApi.Web, :controller
 
   alias MarketApi.Product
+  alias MarketApi.Market
 
   plug :scrub_params, "product" when action in [:create, :update]
+  plug :assign_market when action in [:create, :update]
 
   def index(conn, _params) do
-    products = Repo.all(Product)
+    %{"market_id" => market_id} = conn.params
+
+    products = Repo.all(assoc(Repo.get(Market, market_id), :products))
     render(conn, "index.json", products: products)
   end
 
   def create(conn, %{"product" => product_params}) do
-    changeset = Product.changeset(%Product{}, product_params)
+    changeset = conn.assigns[:market]
+     |> build_assoc(:products)
+     |> Product.changeset(product_params)
 
     case Repo.insert(changeset) do
       {:ok, product} ->
@@ -27,7 +33,7 @@ defmodule MarketApi.ProductController do
   end
 
   def show(conn, %{"id" => id}) do
-    product = Repo.get!(Product, id)
+    product = Repo.get!(Product, id) |> Repo.preload(:market)
     render(conn, "show.json", product: product)
   end
 
@@ -53,5 +59,16 @@ defmodule MarketApi.ProductController do
     Repo.delete!(product)
 
     send_resp(conn, :no_content, "")
+  end
+
+  defp assign_market(conn, _) do
+    %{"market_id" => market_id} = conn.params["product"]
+    if market = Repo.get(Market, market_id) do
+      assign(conn, :market, market)
+    else
+      conn
+      |> put_status(:unprocessable_entity)
+      |> render(MarketApi.ChangesetView, "error.json", message: "Market Not Found")
+    end
   end
 end

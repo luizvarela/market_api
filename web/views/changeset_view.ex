@@ -16,4 +16,9 @@ defmodule MarketApi.ChangesetView do
     # as a JSON object. So we just pass it forward.
     %{errors: translate_errors(changeset)}
   end
+  def render("error.json", %{message: message}) do
+    # When encoded, the changeset returns its errors
+    # as a JSON object. So we just pass it forward.
+    %{errors: message}
+  end
 end

@@ -6,7 +6,7 @@ defmodule MarketApi.MarketController do
   plug :scrub_params, "market" when action in [:create, :update]
 
   def index(conn, _params) do
-    markets = Repo.all(Market) |> Repo.preload(:products)
+    markets = Repo.all(Market)
     render(conn, "index.json", markets: markets)
   end
 
