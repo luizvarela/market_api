@@ -26,9 +26,7 @@ defmodule MarketApi.Router do
     pipe_through :api
 
     resources "/markets", MarketController, except: [:new, :edit] do
-      resources "/products", ProductController, only: [:index]
+      resources "/products", ProductController, except: [:new, :edit]
     end
-
-    resources "/products", ProductController, except: [:index, :new, :edit]
   end
 end
