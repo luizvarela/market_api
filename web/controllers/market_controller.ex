@@ -32,7 +32,7 @@ defmodule MarketApi.MarketController do
   end
 
   def update(conn, %{"id" => id, "market" => market_params}) do
-    market = Repo.get!(Market, id)
+    market = Repo.get!(Market, id) |> Repo.preload(:products)
     changeset = Market.changeset(market, market_params)
 
     case Repo.update(changeset) do

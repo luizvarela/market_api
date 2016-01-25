@@ -6,7 +6,7 @@ defmodule MarketApi.MarketControllerTest do
   @invalid_attrs %{}
 
   setup %{conn: conn} do
-    {:ok, conn: put_req_header(conn, "accept", "application/json")}
+    {:ok, conn: conn |> put_req_header("accept", "application/vnd.api+json") |> put_req_header("content-type", "application/vnd.api+json")}
   end
 
   test "lists all entries on index", %{conn: conn} do
@@ -17,9 +17,16 @@ defmodule MarketApi.MarketControllerTest do
   test "shows chosen resource", %{conn: conn} do
     market = Repo.insert! %Market{}
     conn = get conn, market_path(conn, :show, market)
-    assert json_response(conn, 200)["data"] == %{"id" => market.id,
+    assert json_response(conn, 200)["data"] == %{ "attributes" => %{
+      "id" => market.id,
       "name" => market.name,
-      "phone" => market.phone}
+      "phone" => market.phone},
+      "id" => Integer.to_string(market.id),
+      "relationships" => %{
+        "products" => %{
+          "links" => %{
+            "related" => "/markets/#{market.id}/products"}}},
+      "type" => "market"}
   end
 
   test "does not show resource and instead throw error when id is nonexistent", %{conn: conn} do
