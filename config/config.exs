@@ -5,6 +5,9 @@
 # is restricted to this project.
 use Mix.Config
 
+config :market_api,
+  ecto_repos: [MarketApi.Repo]
+
 # Configures the endpoint
 config :market_api, MarketApi.Endpoint,
   url: [host: "localhost"],
